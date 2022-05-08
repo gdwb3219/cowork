@@ -2,7 +2,10 @@ const express = require('express');
 
 const app = express();
 
-let members = require('./members');
+// 모듈을 검색할 때, 특정 디렉토리명을 검색할 때 자동으로 index.js 파일을 찾는다.
+const db = require('./models');
+
+const { Member } = db;
 
 // middle ware
 app.use(express.json());
