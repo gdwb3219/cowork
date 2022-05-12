@@ -48,28 +48,62 @@ app.post('/api/members', async (req, res) => {
 });
 
 // 기존 직원정보 수정하기
-app.put('/api/members/:id', (req, res) => {
+// app.put('/api/members/:id', (req, res) => {
+//   const { id } = req.params;
+//   const newInfo = req.body;
+//   const member = members.find((m) => m.id === Number(id));
+//   if (member) {
+//     Object.keys(newInfo).forEach((prop) => {
+//       member[prop] = newInfo[prop];
+//     });
+//     res.send(member);
+//   } else {
+//     res.status(404).send({ message: 'There is no member with the id!' });
+//   }
+// });
+
+// app.put('/api/members/:id', async (req, res) => {
+//   const { id } = req.params;
+//   const newInfo = req.body;
+//   const result = await Member.update(newInfo, { where: { id } });
+//   if (result[0]) {
+//     res.send({ message: `${result[0]} row(s) affected` });
+//   } else {
+//     res.status(404).send({ message: 'There is no member with the id!' });
+//   }
+// });
+
+// ## ORM 체감 PUT method (수정하기)
+app.put('/api/members/:id', async (req, res) => {
   const { id } = req.params;
   const newInfo = req.body;
-  const member = members.find((m) => m.id === Number(id));
-  if (member) {
-    Object.keys(newInfo).forEach((prop) => {
-      member[prop] = newInfo[prop];
-    });
-    res.send(member);
-  } else {
-    res.status(404).send({ message: 'There is no member with the id!' });
-  }
+  const member = await Member.findOne({ where: { id } });
+  Object.keys(newInfo).forEach((prop) => {
+    member[prop] = newInfo[prop];
+  });
+  await member.save();
+  res.send(member);
 });
 
 // 직원 정보 삭제하기
-app.delete('/api/members/:id', (req, res) => {
+// app.delete('/api/members/:id', (req, res) => {
+//   const { id } = req.params;
+//   const membersCount = members.length;
+//   // id값이 일치 하지 않는 정보들(배열들)만 따로 변수에 담는다.
+//   members = members.filter((member) => member.id !== Number(id));
+//   if (members.length < membersCount) {
+//     res.send({ message: 'Deleted' });
+//   } else {
+//     res.status(404).send({ message: 'There is no member with the id!' });
+//   }
+// });
+
+// ## ORM 체감 DELETE method (삭제하기)
+app.delete('/api/members/:id', async (req, res) => {
   const { id } = req.params;
-  const membersCount = members.length;
-  // id값이 일치 하지 않는 정보들(배열들)만 따로 변수에 담는다.
-  members = members.filter((member) => member.id !== Number(id));
-  if (members.length < membersCount) {
-    res.send({ message: 'Deleted' });
+  const deletedCount = await Member.destroy({ where: { id } });
+  if (deletedCount) {
+    res.send({ message: `${deletedCount} row(s) deleted` });
   } else {
     res.status(404).send({ message: 'There is no member with the id!' });
   }
